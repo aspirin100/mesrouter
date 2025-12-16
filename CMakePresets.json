@@ -1,0 +1,22 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 4,
+    "minor": 1,
+    "patch": 1
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "vcpkg manifest",
+      "description": "Configure using vcpkg toolchain and manifest dependencies",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_FEATURE_FLAGS": "manifests,versions",
+        "CMAKE_CXX_STANDARD": "20"
+      }
+    }
+  ]
+}
