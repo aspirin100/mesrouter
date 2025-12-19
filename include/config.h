@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <array>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -21,51 +22,45 @@ enum class kScenario
     STRATEGY_BOTTLENECK
 };
 
-enum class kMessageType
-{
-    TYPE0,
-    TYPE1,
-    TYPE2,
-    TYPE3
-};
-
-enum class kStrategyType
-{
-    STRATEGY0,
-    STRATEGY1,
-    STRATEGY2
+inline const std::unordered_map<std::string, kScenario> scenarios{
+    {"baseline", kScenario::BASELINE},
+    {"hot_message_type", kScenario::HOT_MESSAGE_TYPE},
+    {"burst_traffic", kScenario::BURST_TRAFFIC},
+    {"imbalanced_processing", kScenario::IMBALANCED_PROCESSING},
+    {"ordering_stress_test", kScenario::ORDERING_STRESS_TEST},
+    {"strategy_bottleneck", kScenario::STRATEGY_BOTTLENECK},
 };
 
 struct StrategyConfig
 {
     uint16_t count;
-    std::unordered_map<kStrategyType, std::chrono::nanoseconds> processing_time_ns;
+    std::vector<std::chrono::nanoseconds> strategy_processing_time_ns;
 };
 
 struct ProducersConfig
 {
     uint16_t count;
     uint32_t messages_per_sec;
-    std::unordered_map<kMessageType, float> message_distribution;
+    std::vector<float> message_type_distribution;
 };
 
 struct Stage1Rule
 {
-    kMessageType message_type;
+    uint16_t message_type;
     uint16_t processors;
 };
 
 struct Stage2Rule
 {
-    kMessageType message_type;
-    kStrategyType strategy;
+    uint16_t message_type;
+    uint16_t strategy;
     bool ordering_required;
 };
 
 struct ProcessorsConfig
 {
     uint16_t count;
-    std::unordered_map<kMessageType, std::chrono::nanoseconds> processing_time_ns;
+    std::vector<std::chrono::nanoseconds> message_type_processing_time_ns;
 };
 
 struct Config
@@ -79,15 +74,15 @@ struct Config
     std::vector<Stage2Rule> stage_2_rules;
 };
 
-kScenario ParseScenario(const std::string &scenario);
-ProducersConfig ParseProducersConfig(const json &data);
-ProcessorsConfig ParseProcessorsConfig(const json &data);
-StrategyConfig ParseStrategies(const json &data);
-std::vector<Stage1Rule> ParseStage1Rules(const json &data);
-std::vector<Stage2Rule> ParseStage2Rules(const json &data);
-kMessageType ParseMessageType(const int type);
-kStrategyType ParseStrategyType(const int type);
 std::optional<Config> ParseConfig();
 
+uint16_t ParseIndex(const std::string &key, const std::string &prefix);
+
+void FromJson(const json &j, kScenario &scenario);
+void FromJson(const json &j, ProducersConfig &producers);
+void FromJson(const json &j, ProcessorsConfig &processors);
+void FromJson(const json &j, StrategyConfig &strategies);
+void FromJson(const json &j, std::vector<Stage1Rule> &rules);
+void FromJson(const json &j, std::vector<Stage2Rule> &rules);
 
 #endif

@@ -2,9 +2,10 @@
 
 script_dir="$(dirname "$0")"
 proj_name=mesrouter
+preset=default
 
 cd $script_dir/..
-mkdir -p build && cd build
-cmake ..
+cmake --preset=$preset
+cd build
 make
 mv $proj_name ..

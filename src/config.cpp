@@ -7,6 +7,7 @@
 #include <chrono>
 #include <utility>
 #include <iostream>
+#include <stdexcept>
 
 using json = nlohmann::json;
 
@@ -30,145 +31,105 @@ std::optional<Config> ParseConfig()
 
     Config config;
 
-    config.scenario = ParseScenario(data["scenario"]);
-    config.duration_sec = std::chrono::duration<float>(data["duration_secs"]);
-
-    config.producers = ParseProducersConfig(data);
-    config.processors = ParseProcessorsConfig(data);
-    config.strategies = ParseStrategies(data);
-    config.stage_1_rules = ParseStage1Rules(data);
-    config.stage_2_rules = ParseStage2Rules(data);
+    FromJson(data, config.scenario);
+    config.duration_sec = std::chrono::duration<float>(data.at("duration_secs"));
+    FromJson(data, config.producers);
+    FromJson(data, config.processors);
+    FromJson(data, config.strategies);
+    FromJson(data, config.stage_1_rules);
+    FromJson(data, config.stage_2_rules);
 
     return config;
 }
 
-kScenario ParseScenario(const std::string &scenario)
+void FromJson(const json &j, kScenario &scenario)
 {
-    if (scenario == "baseline")
-        return kScenario::BASELINE;
-    else if (scenario == "Hot Message Type")
-        return kScenario::HOT_MESSAGE_TYPE;
-    else if (scenario == "Burst Traffic")
-        return kScenario::BURST_TRAFFIC;
-    else if (scenario == "Imbalanced Processing")
-        return kScenario::IMBALANCED_PROCESSING;
-    else if (scenario == "Ordering Stress Test")
-        return kScenario::ORDERING_STRESS_TEST;
-    else if (scenario == "Strategy Bottleneck")
-        return kScenario::STRATEGY_BOTTLENECK;
-
-    return kScenario::BASELINE;
+    auto it = scenarios.find(j.at("scenario"));
+    if (it != scenarios.end())
+        scenario = it->second;
 }
 
-ProducersConfig ParseProducersConfig(const json &data)
+void FromJson(const json &j, ProducersConfig &producers)
 {
-    ProducersConfig conf;
-    conf.count = data["producers"]["count"];
-    conf.messages_per_sec = data["producers"]["messages_per_sec"];
+    j.at("producers").at("count").get_to(producers.count);
+    j.at("producers").at("messages_per_sec").get_to(producers.messages_per_sec);
 
-    conf.message_distribution[kMessageType::TYPE0] = data["producers"]["distribution"]["msg_type_0"];
-    conf.message_distribution[kMessageType::TYPE1] = data["producers"]["distribution"]["msg_type_1"];
-    conf.message_distribution[kMessageType::TYPE2] = data["producers"]["distribution"]["msg_type_2"];
-    conf.message_distribution[kMessageType::TYPE3] = data["producers"]["distribution"]["msg_type_3"];
+    producers.message_type_distribution.resize(producers.count);
 
-    return conf;
-}
-
-ProcessorsConfig ParseProcessorsConfig(const json &data)
-{
-    ProcessorsConfig conf;
-    conf.count = data["processors"]["count"];
-
-    conf.processing_time_ns[kMessageType::TYPE0] = std::chrono::nanoseconds(data["processors"]["processing_times_ns"]["msg_type_0"]);
-    conf.processing_time_ns[kMessageType::TYPE1] = std::chrono::nanoseconds(data["processors"]["processing_times_ns"]["msg_type_1"]);
-    conf.processing_time_ns[kMessageType::TYPE2] = std::chrono::nanoseconds(data["processors"]["processing_times_ns"]["msg_type_2"]);
-    conf.processing_time_ns[kMessageType::TYPE3] = std::chrono::nanoseconds(data["processors"]["processing_times_ns"]["msg_type_3"]);
-
-    return conf;
-}
-
-StrategyConfig ParseStrategies(const json &data)
-{
-    StrategyConfig conf;
-    conf.count = data["strategies"]["count"];
-
-    conf.processing_time_ns[kStrategyType::STRATEGY0] = std::chrono::nanoseconds(data["strategies"]["processing_times_ns"]["strategy_0"]);
-    conf.processing_time_ns[kStrategyType::STRATEGY1] = std::chrono::nanoseconds(data["strategies"]["processing_times_ns"]["strategy_1"]);
-    conf.processing_time_ns[kStrategyType::STRATEGY2] = std::chrono::nanoseconds(data["strategies"]["processing_times_ns"]["strategy_2"]);
-
-    return conf;
-}
-
-std::vector<Stage1Rule> ParseStage1Rules(const json &data)
-{
-    std::vector<Stage1Rule> rules;
-
-    for (const auto &rule : data["stage1_rules"])
+    for (const auto &[key, val] : j.at("producers").at("distribution").items())
     {
-        Stage1Rule temp;
+        uint16_t idx = ParseIndex(key, "msg_type_");
 
-        temp.message_type = ParseMessageType(rule["msg_type"]);
-        temp.processors = rule["processors"];
+        if (idx >= producers.count)
+            throw std::out_of_range("msg type index out of range(producers)");
 
-        rules.emplace_back(std::move(temp));
-    }
-
-    return rules;
-}
-
-kMessageType ParseMessageType(const int type)
-{
-    switch (type)
-    {
-    case 0:
-        return kMessageType::TYPE0;
-        break;
-    case 1:
-        return kMessageType::TYPE1;
-        break;
-    case 2:
-        return kMessageType::TYPE2;
-        break;
-    case 3:
-        return kMessageType::TYPE3;
-        break;
-    default:
-        return kMessageType::TYPE0;
+        producers.message_type_distribution[idx] = val;
     }
 }
 
-std::vector<Stage2Rule> ParseStage2Rules(const json &data)
+void FromJson(const json &j, ProcessorsConfig &processors)
 {
-    std::vector<Stage2Rule> rules;
+    j.at("processors").at("count").get_to(processors.count);
 
-    for (const auto &rule : data["stage2_rules"])
+    processors.message_type_processing_time_ns.resize(processors.count);
+
+    for (const auto &[key, val] : j.at("processors").at("processing_times_ns").items())
     {
-        Stage2Rule temp;
+        uint16_t idx = ParseIndex(key, "msg_type_");
 
-        temp.message_type = ParseMessageType(rule["msg_type"]);
-        temp.strategy = ParseStrategyType(rule["strategy"]);
-        temp.ordering_required = rule["ordering_required"];
+        if (idx > processors.count)
+            throw std::out_of_range("msg type index out of range(processors)");
 
-        rules.emplace_back(std::move(temp));
+        processors.message_type_processing_time_ns[idx] = std::chrono::nanoseconds(val);
     }
-
-    return rules;
 }
 
-kStrategyType ParseStrategyType(const int type)
+void FromJson(const json &j, StrategyConfig &strategies)
 {
-    switch (type)
+    j.at("strategies").at("count").get_to(strategies.count);
+
+    strategies.strategy_processing_time_ns.resize(strategies.count);
+
+    for (const auto &[key, val] : j.at("strategies").at("processing_times_ns").items())
     {
-    case 0:
-        return kStrategyType::STRATEGY0;
-        break;
-    case 1:
-        return kStrategyType::STRATEGY1;
-        break;
-    case 2:
-        return kStrategyType::STRATEGY2;
-        break;
-    default:
-        return kStrategyType::STRATEGY0;
+        uint16_t idx = ParseIndex(key, "strategy_");
+
+        if (idx >= strategies.count)
+            throw std::out_of_range("strategy index out of range");
+
+        strategies.strategy_processing_time_ns[idx] = std::chrono::nanoseconds(val);
     }
+}
+
+void FromJson(const json &j, std::vector<Stage1Rule> &rules)
+{
+    rules.reserve(j.at("stage1_rules").size());
+
+    for (const auto &rule : j.at("stage1_rules"))
+    {
+        rules.emplace_back(
+            rule.at("msg_type"),
+            rule.at("processors"));
+    }
+}
+
+void FromJson(const json &j, std::vector<Stage2Rule> &rules)
+{
+    rules.reserve(j.at("stage2_rules").size());
+
+    for (const auto &rule : j.at("stage2_rules"))
+    {
+        rules.emplace_back(
+            rule.at("msg_type"),
+            rule.at("strategy"),
+            rule.at("ordering_required"));
+    }
+}
+
+uint16_t ParseIndex(const std::string &key, const std::string &prefix)
+{
+    if (!key.starts_with(prefix))
+        throw std::runtime_error("invalid key with index");
+
+    return std::stoi(key.substr(prefix.size()));
 }
