@@ -4,7 +4,8 @@
 template <typename T>
 class mpsc_queue
 {
-
+public:
+    bool TryPop(T& dest);
 };
 
 

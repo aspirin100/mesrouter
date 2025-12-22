@@ -4,7 +4,8 @@
 template <typename T>
 class spsc_queue
 {
-
+public:
+    void Push(T&& val);
 };
 
 #endif
