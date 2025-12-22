@@ -3,27 +3,51 @@
 
 #include <cstdint>
 #include <chrono>
+#include <optional>
 
-class Message
+enum class kMessageType : uint8_t
 {
-using Timestamp = std::chrono::time_point<std::chrono::system_clock>; // TODO: maybe use other type if need 
+    TYPE0,
+    TYPE1,
+    TYPE2,
+    TYPE3,
+    TYPE4,
+    TYPE5,
+    TYPE6,
+    TYPE7,
+};
 
-private:
-    uint8_t type_; // 0-7
+struct MessagePayload{};
 
-    uint16_t producer_id_;
-    uint16_t processor_id_;
-    uint16_t seq_number_ = 0;
-    
-    Timestamp produced_ts_ = std::chrono::system_clock::now();
-    Timestamp processed_ts_;
+struct OrderingInfo
+{
+    uint64_t seq;
+    uint64_t stream_id;
+};
 
-public:
-    Message(const uint8_t type, const uint16_t producer_id);
+struct ProcessingInfo
+{
+    uint16_t processor_id;
+    std::chrono::steady_clock::time_point ts;
+};
 
-    void Process();
+struct Message
+{
+    kMessageType type;
 
-    virtual ~Message() = default;
+    uint16_t producer_id;
+    uint16_t seq_number = 0;
+
+    std::chrono::steady_clock::time_point ts = std::chrono::steady_clock::now();
+
+    MessagePayload payload;
+};
+
+struct MessageEnvelope
+{
+    Message msg;
+    ProcessingInfo processing_info;
+    std::optional<OrderingInfo> ordering_info;
 };
 
 #endif
