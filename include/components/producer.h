@@ -2,19 +2,23 @@
 #define PRODUCER_H
 
 #include "message.h"
-#include <chrono>
+#include <cstdint>
+#include <atomic>
 
 class Producer
 {
 private:
-    std::chrono::milliseconds producing_time_;
-
+    uint64_t seq_ = 0;
+    kMessageType producing_msg_type_;
 public:
-    Producer(const std::chrono::milliseconds &producing_time) : producing_time_(producing_time) {}
+    Producer(const uint64_t producer_id, const kMessageType msg_type)
+         : id(producer_id), producing_msg_type_(msg_type) {}
 
-    virtual Message ProduceMessage() const;
+    virtual Message ProduceMessage();
 
     virtual ~Producer() = default;
+
+    uint64_t id;
 };
 
 #endif
