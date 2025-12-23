@@ -1,7 +1,7 @@
 #include "components/producer.h"
 #include "components/message.h"
 
-Message Producer::ProduceMessage()
+Message Producer::ProduceMessage() 
 {
     Message msg;
 

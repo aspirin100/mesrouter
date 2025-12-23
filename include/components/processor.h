@@ -2,19 +2,31 @@
 #define PROCESSOR_H
 
 #include "message.h"
+#include "../utils/spsc.h"
 #include <chrono>
 
-class Processor
+class Processor final
 {
+    using InputQ = spsc_queue<Message>;
+    using OutputQ = spsc_queue<MessageEnvelope>;
+
 private:
     std::chrono::nanoseconds processing_time_;
 
+    InputQ input_;
+    OutputQ &output_;
+
+    uint16_t id_;
+
 public:
-    Processor(const std::chrono::nanoseconds &processing_time) : processing_time_(processing_time_) {}
+    Processor(const uint16_t id, OutputQ &output, const std::chrono::nanoseconds &processing_time)
+        : id_(id), output_(output), processing_time_(processing_time_) {}
 
-    virtual void TransformMessage(Message &msg);
+    void Start();
+    void Stop();
 
-    virtual ~Processor() = default;
+private:
+    void TransformOne();
 };
 
 #endif
