@@ -9,6 +9,8 @@
 #include <array>
 #include <vector>
 
+constexpr size_t INVALID_OUTPUT = std::numeric_limits<size_t>::max();
+
 class Stage1Router
 {
     using InputQ = mpsc_queue<Message>;
@@ -32,6 +34,26 @@ private:
 
 class Stage2Router
 {
+    using InputQ = mpsc_queue<MessageEnvelope>;
+    using OutputQ = spsc_queue<MessageEnvelope>;
+
+private:
+    InputQ input_;
+    std::vector<OutputQ *> output_;
+
+    std::vector<size_t> msg_type_output_;
+    std::vector<bool> msg_type_ordering_requirement_;
+
+public:
+    Stage2Router(const Config &conf, std::vector<OutputQ *> out);
+
+    void Run();
+    void Stop();
+
+private:
+    void RouteOne();
+    size_t SelectOutput(const Message &msg);
+    bool CheckOrderingRequired(const Message &msg);
 };
 
 #endif

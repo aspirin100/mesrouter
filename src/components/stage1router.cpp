@@ -4,8 +4,6 @@
 #include <stdexcept>
 #include <vector>
 
-constexpr size_t INVALID_OUTPUT = std::numeric_limits<size_t>::max();
-
 Stage1Router::Stage1Router(const Config &conf, std::vector<OutputQ *> out)
     : output_(out)
 {
@@ -20,7 +18,7 @@ Stage1Router::Stage1Router(const Config &conf, std::vector<OutputQ *> out)
             throw std::logic_error("invalid processor id");
 
         if (msg_type_output_[rule.message_type] != INVALID_OUTPUT)
-            throw std::logic_error("duplicate settings for message type");
+            throw std::logic_error("duplicate processor settings for message type");
 
         msg_type_output_[rule.message_type] = rule.processors;
     }

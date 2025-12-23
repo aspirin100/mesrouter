@@ -1,0 +1,49 @@
+#include "components/router.h"
+#include <utility>
+
+Stage2Router::Stage2Router(const Config &conf, std::vector<OutputQ *> out)
+    : output_(out),
+      msg_type_output_(conf.stage_2_rules.size(), INVALID_OUTPUT),
+      msg_type_ordering_requirement_(conf.stage_2_rules.size(), false)
+{
+    for (const auto &rule : conf.stage_2_rules)
+    {
+        if (rule.strategy >= out.size())
+            throw std::logic_error("unknown strategy");
+        if (rule.message_type >= msg_type_output_.size())
+            throw std::logic_error("unknown message type");
+        if (msg_type_output_[rule.message_type] != INVALID_OUTPUT)
+            throw std::logic_error("message type duplcate strategy setting");
+
+        msg_type_output_[rule.message_type] = rule.strategy;
+        msg_type_ordering_requirement_[rule.message_type] = rule.ordering_required; // maybe join into one std::vector<> with help struct
+    }
+}
+
+void Stage2Router::RouteOne()
+{
+    MessageEnvelope msg;
+
+    if (input_.TryPop(msg))
+    {
+        size_t idx = SelectOutput(msg.msg);
+
+        assert(idx != INVALID_OUTPUT);
+        assert(output_[idx] != nullptr);
+
+        if(CheckOrderingRequired(msg.msg))
+            msg.ordering_info = OrderingInfo{};
+
+        output_[idx]->Push(std::move(msg));
+    }
+}
+
+size_t Stage2Router::SelectOutput(const Message &msg)
+{
+    return msg_type_output_[static_cast<size_t>(msg.type)];
+}
+
+bool Stage2Router::CheckOrderingRequired(const Message &msg)
+{
+    return msg_type_ordering_requirement_[static_cast<size_t>(msg.type)];
+}
