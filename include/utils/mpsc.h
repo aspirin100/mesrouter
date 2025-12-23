@@ -5,8 +5,8 @@ template <typename T>
 class mpsc_queue
 {
 public:
-    bool TryPop(T& dest);
+    void Push(T &&val);
+    void Pop(T &dest);
 };
-
 
 #endif

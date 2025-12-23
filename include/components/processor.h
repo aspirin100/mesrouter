@@ -13,14 +13,13 @@ class Processor final
 private:
     std::chrono::nanoseconds processing_time_;
 
-    InputQ input_;
+    InputQ &input_;
     OutputQ &output_;
 
     uint16_t id_;
 
 public:
-    Processor(const uint16_t id, OutputQ &output, const std::chrono::nanoseconds &processing_time)
-        : id_(id), output_(output), processing_time_(processing_time_) {}
+    Processor(const uint16_t id, InputQ &in, OutputQ &out, const std::chrono::nanoseconds &processing_time);
 
     void Start();
     void Stop();

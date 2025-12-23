@@ -2,23 +2,31 @@
 #define PRODUCER_H
 
 #include "message.h"
+#include "../utils/mpsc.h"
 #include <cstdint>
 #include <atomic>
 
-class Producer // TODO: add stage1router que
+class Producer
 {
+    using OutputQ = mpsc_queue<Message>;
+
 private:
+    uint64_t id_;
     uint64_t seq_ = 0;
     kMessageType producing_msg_type_;
-public:
-    Producer(const uint64_t producer_id, const kMessageType msg_type)
-         : id(producer_id), producing_msg_type_(msg_type) {}
 
-    virtual Message ProduceMessage();
+    OutputQ &output_;
+
+public:
+    Producer(const uint64_t producer_id, const kMessageType msg_type, OutputQ &out);
+
+    void Run();
+    void Stop();
 
     virtual ~Producer() = default;
 
-    uint64_t id;
+protected:
+    virtual void ProduceMessage();
 };
 
 #endif
