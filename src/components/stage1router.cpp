@@ -45,7 +45,7 @@ void Stage1Router::RouteOne()
 
 void Stage1Router::Run()
 {
-    running_.store(true);
+    running_.store(true, std::memory_order_relaxed);
 
     while(running_.load(std::memory_order_relaxed))
         RouteOne();

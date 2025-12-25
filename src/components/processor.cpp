@@ -31,7 +31,7 @@ void Processor::TransformOne()
 
 void Processor::Run()
 {
-    running_.store(true);
+    running_.store(true, std::memory_order_relaxed);
 
     while(running_.load(std::memory_order_relaxed))
         TransformOne();
