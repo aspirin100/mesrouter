@@ -31,8 +31,7 @@ void Stage2Router::RouteOne()
     assert(idx != INVALID_OUTPUT);
     assert(output_[idx] != nullptr);
 
-    if (CheckOrderingRequired(msg.msg))
-        msg.ordering_info = OrderingInfo{}; //TODO: implement ordering
+    msg.ordering_required = CheckOrderingRequired(msg.msg);
 
     output_[idx]->Push(std::move(msg));
 }

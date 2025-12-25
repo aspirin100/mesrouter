@@ -19,12 +19,6 @@ enum class kMessageType : uint8_t
 
 struct MessagePayload{};
 
-struct OrderingInfo
-{
-    uint64_t seq;
-    uint64_t stream_id;
-};
-
 struct ProcessingInfo
 {
     uint16_t processor_id;
@@ -47,7 +41,7 @@ struct MessageEnvelope
 {
     Message msg;
     ProcessingInfo processing_info;
-    std::optional<OrderingInfo> ordering_info;
+    bool ordering_required;
 };
 
 #endif

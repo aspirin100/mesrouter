@@ -35,7 +35,7 @@ private:
 class Stage2Router
 {
     using InputQ = mpsc_queue<MessageEnvelope>;
-    using OutputQ = spsc_queue<MessageEnvelope>;
+    using OutputQ = mpsc_queue<MessageEnvelope>;
 
 private:
     InputQ &input_;
