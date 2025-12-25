@@ -45,3 +45,16 @@ bool Stage2Router::CheckOrderingRequired(const Message &msg)
 {
     return msg_type_ordering_requirement_[static_cast<size_t>(msg.type)];
 }
+
+void Stage2Router::Run()
+{
+    running_.store(true);
+
+    while(running_.load(std::memory_order_relaxed))
+        RouteOne();
+}
+
+void Stage2Router::Stop()
+{
+    running_.store(false, std::memory_order_relaxed);
+}

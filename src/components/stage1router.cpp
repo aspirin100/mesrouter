@@ -42,3 +42,16 @@ void Stage1Router::RouteOne()
 
     output_[idx]->Push(std::move(msg));
 }
+
+void Stage1Router::Run()
+{
+    running_.store(true);
+
+    while(running_.load(std::memory_order_relaxed))
+        RouteOne();
+}
+
+void Stage1Router::Stop()
+{
+    running_.store(false, std::memory_order_relaxed);
+}

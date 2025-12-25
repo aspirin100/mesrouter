@@ -8,6 +8,7 @@
 #include "processor.h"
 #include <array>
 #include <vector>
+#include <atomic>
 
 constexpr size_t INVALID_OUTPUT = std::numeric_limits<size_t>::max();
 
@@ -17,6 +18,8 @@ class Stage1Router
     using OutputQ = spsc_queue<Message>;
 
 private:
+    std::atomic<bool> running_;
+
     InputQ &input_;
     std::array<size_t, 8> msg_type_output_;
     std::vector<OutputQ *> output_;
@@ -38,6 +41,8 @@ class Stage2Router
     using OutputQ = mpsc_queue<MessageEnvelope>;
 
 private:
+    std::atomic<bool> running_;
+
     InputQ &input_;
     std::vector<OutputQ *> output_;
 
