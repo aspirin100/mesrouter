@@ -5,12 +5,15 @@
 #include "../utils/mpsc.h"
 #include <chrono>
 #include <cstdint>
+#include <atomic>
 
 class Strategy
 {
     using InputQ = mpsc_queue<MessageEnvelope>;
 
 private:
+    std::atomic<bool> running_;
+
     std::chrono::nanoseconds processing_time_;
     InputQ &input_;
 

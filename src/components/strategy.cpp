@@ -36,3 +36,15 @@ void Strategy::ValidateOne()
         // _mm_pause();
     }
 }
+
+void Strategy::Run()
+{
+    running_.store(true);
+
+    while(running_.load(std::memory_order_relaxed))
+        ValidateOne();
+}
+
+void Strategy::Stop()
+{
+    running_.store(false, std::memory_order_relaxed);
