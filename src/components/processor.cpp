@@ -28,3 +28,16 @@ void Processor::TransformOne()
         // _mm_pause();
     }
 }
+
+void Processor::Run()
+{
+    running_.store(true);
+
+    while(running_.load(std::memory_order_relaxed))
+        TransformOne();
+}
+
+void Processor::Stop()
+{
+    running_.store(false, std::memory_order_relaxed);
+}

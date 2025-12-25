@@ -4,6 +4,7 @@
 #include "message.h"
 #include "../utils/spsc.h"
 #include <chrono>
+#include <atomic>
 
 class Processor final
 {
@@ -11,6 +12,8 @@ class Processor final
     using OutputQ = spsc_queue<MessageEnvelope>;
 
 private:
+    std::atomic<bool> running_;
+
     std::chrono::nanoseconds processing_time_;
 
     InputQ &input_;
@@ -21,7 +24,7 @@ private:
 public:
     Processor(const uint16_t id, InputQ &in, OutputQ &out, const std::chrono::nanoseconds &processing_time);
 
-    void Start();
+    void Run();
     void Stop();
 
 private:
