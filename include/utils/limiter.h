@@ -8,7 +8,7 @@ class BatchRateLimiter
 {
     constexpr static uint32_t NS_PER_SEC = 1'000'000'000;
     uint32_t batch_size_;
-    uint32_t interval_ns_;
+    uint64_t interval_ns_;
     std::chrono::steady_clock::time_point batch_start_;
     uint32_t produced_in_batch_ = 0;
 
