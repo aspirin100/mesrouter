@@ -3,6 +3,7 @@
 
 #include "message.h"
 #include "../utils/mpsc.h"
+#include "../utils/limiter.h"
 #include <cstdint>
 #include <atomic>
 
@@ -19,8 +20,10 @@ private:
 
     OutputQ &output_;
 
+    BatchRateLimiter limiter_;
+
 public:
-    Producer(const uint64_t producer_id, const kMessageType msg_type, OutputQ &out);
+    Producer(uint64_t producer_id, kMessageType msg_type, OutputQ &out, uint32_t msg_per_sec);
 
     void Run();
     void Stop();

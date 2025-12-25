@@ -2,8 +2,8 @@
 #include "components/message.h"
 #include <utility>
 
-Producer::Producer(const uint64_t producer_id, const kMessageType msg_type, OutputQ &out)
-    : id_(producer_id), producing_msg_type_(msg_type), output_(out)
+Producer::Producer(uint64_t producer_id, kMessageType msg_type, OutputQ &out, uint32_t msg_per_sec)
+    : id_(producer_id), producing_msg_type_(msg_type), output_(out), limiter_(msg_per_sec)
 {
 }
 
@@ -23,10 +23,15 @@ void Producer::ProduceMessage()
 
 void Producer::Run()
 {
-    running_.store(true);
+    running_.store(true, std::memory_order_relaxed);
 
     while(running_.load(std::memory_order_relaxed))
-        ProduceMessage();
+    {
+        if(limiter_.can_produce())
+            ProduceMessage();
+        else
+            limiter_.wait_for_next_batch();
+    }
 }
 
 void Producer::Stop()
