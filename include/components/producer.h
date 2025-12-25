@@ -11,6 +11,8 @@ class Producer
     using OutputQ = mpsc_queue<Message>;
 
 private:
+    std::atomic<bool> running_ = false;
+
     uint64_t id_;
     uint64_t seq_ = 0;
     kMessageType producing_msg_type_;
