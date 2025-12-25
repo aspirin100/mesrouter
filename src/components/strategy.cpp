@@ -4,13 +4,16 @@
 constexpr uint64_t INVALID_SEQ = std::numeric_limits<uint64_t>::max();
 
 Strategy::Strategy(InputQ &in, const std::chrono::nanoseconds &processing_time)
-    : input_(in), processing_time_(processing_time) 
+    : input_(in), processing_time_(processing_time)
 {
     expected_seq_.fill(INVALID_SEQ);
 }
 
 void Strategy::ValidateOne()
 {
+    auto start = std::chrono::steady_clock::now();
+    auto end = start + processing_time_;
+
     MessageEnvelope msg;
 
     input_.Pop(msg);
@@ -26,5 +29,10 @@ void Strategy::ValidateOne()
             ++violations_;
 
         expected_seq_[idx] = msg.msg.seq_number + 1;
+    }
+
+    while (std::chrono::steady_clock::now() < end)
+    {
+        // _mm_pause();
     }
 }

@@ -10,6 +10,7 @@ Processor::Processor(const uint16_t id, InputQ &in, OutputQ &out, const std::chr
 void Processor::TransformOne()
 {
     auto start = std::chrono::steady_clock::now();
+    auto end = start + processing_time_;
 
     Message msg;
 
@@ -22,7 +23,7 @@ void Processor::TransformOne()
 
     output_.Push(std::move(res));
 
-    while (std::chrono::steady_clock::now() - start < processing_time_)
+    while (std::chrono::steady_clock::now() < end)
     {
         // _mm_pause();
     }
