@@ -54,13 +54,13 @@ void FromJson(const json &j, ProducersConfig &producers)
     j.at("producers").at("count").get_to(producers.count);
     j.at("producers").at("messages_per_sec").get_to(producers.messages_per_sec);
 
-    producers.message_type_distribution.resize(producers.count);
+    producers.message_type_distribution.fill(0);
 
     for (const auto &[key, val] : j.at("producers").at("distribution").items())
     {
         uint16_t idx = ParseIndex(key, "msg_type_");
 
-        if (idx >= producers.count)
+        if (idx >= MESSAGE_TYPE_COUNT)
             throw std::out_of_range("msg type index out of range(producers)");
 
         producers.message_type_distribution[idx] = val;
@@ -71,13 +71,13 @@ void FromJson(const json &j, ProcessorsConfig &processors)
 {
     j.at("processors").at("count").get_to(processors.count);
 
-    processors.message_type_processing_time_ns.resize(processors.count);
+    processors.message_type_processing_time_ns.fill(std::chrono::nanoseconds(0));
 
     for (const auto &[key, val] : j.at("processors").at("processing_times_ns").items())
     {
         uint16_t idx = ParseIndex(key, "msg_type_");
 
-        if (idx > processors.count)
+        if (idx >= MESSAGE_TYPE_COUNT)
             throw std::out_of_range("msg type index out of range(processors)");
 
         processors.message_type_processing_time_ns[idx] = std::chrono::nanoseconds(val);

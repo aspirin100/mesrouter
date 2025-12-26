@@ -27,7 +27,7 @@ struct ProcessingInfo
 
 struct Message
 {
-    kMessageType type;
+    kMessageType type = kMessageType::TYPE0;
 
     uint16_t producer_id;
     uint16_t seq_number = 0;
@@ -41,7 +41,7 @@ struct MessageEnvelope
 {
     Message msg;
     ProcessingInfo processing_info;
-    bool ordering_required;
+    bool ordering_required = false;
 };
 
 #endif

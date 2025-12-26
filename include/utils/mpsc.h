@@ -1,13 +1,16 @@
 #ifndef MPSC_H
 #define MPSC_H
 
+#include <cstddef>
+
 template <typename T>
-class mpsc_queue 
+class mpsc_queue
 {
 private:
     size_t cap_;
+
 public:
-    explicit mpsc_queue(const size_t capacity);
+    explicit mpsc_queue(const size_t capacity = 1024);
 
     void Push(T &&val);
     void Pop(T &dest);
@@ -16,6 +19,10 @@ public:
 template <typename T>
 mpsc_queue<T>::mpsc_queue(const size_t capacity) : cap_(capacity) {}
 
+template <typename T>
+void mpsc_queue<T>::Push(T &&val) {}
 
+template <typename T>
+void mpsc_queue<T>::Pop(T &dest) {}
 
 #endif

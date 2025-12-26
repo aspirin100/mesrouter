@@ -6,22 +6,34 @@
 #include "components/processor.h"
 #include "components/strategy.h"
 #include "components/message.h"
+#include "components/router.h"
+#include "utils/mpsc.h"
+#include "utils/spsc.h"
 #include <vector>
+#include <chrono>
+#include <memory>
 
 class Application
 {
 private:
-    std::vector<Producer> producers_;
-    std::vector<Processor> processors_;
-    std::vector<Strategy> strategies_;
+    mpsc_queue<Message> stage1_q_;
+    mpsc_queue<MessageEnvelope> stage2_q_;
+    std::vector<spsc_queue<Message>> processors_q_;
+    std::vector<mpsc_queue<MessageEnvelope>> strategies_q_;
 
-    uint32_t duration_sec_;
+    Stage1Router stage1_r_;
+    Stage2Router stage2_r_;
+
+    std::vector<std::unique_ptr<Producer>> producers_;
+    std::vector<std::unique_ptr<Processor>> processors_;
+    std::vector<std::unique_ptr<Strategy>> strategies_;
+
+    std::chrono::duration<float> duration_sec_;
 
 public:
-    Application(const Config& conf);
+    Application(const Config &conf);
 
     void StartProcess();
 };
-
 
 #endif

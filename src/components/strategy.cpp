@@ -48,3 +48,4 @@ void Strategy::Run()
 void Strategy::Stop()
 {
     running_.store(false, std::memory_order_relaxed);
+}

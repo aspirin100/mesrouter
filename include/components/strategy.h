@@ -15,8 +15,8 @@ class Strategy
 private:
     std::atomic<bool> running_;
 
-    std::chrono::nanoseconds processing_time_;
     InputQ &input_;
+    std::chrono::nanoseconds processing_time_;
 
     std::array<uint64_t, MESSAGE_TYPE_COUNT> expected_seq_;
     uint16_t violations_ = 0;
