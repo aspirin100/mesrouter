@@ -12,6 +12,8 @@
 
 using json = nlohmann::json;
 
+constexpr uint8_t MESSAGE_TYPE_COUNT = 8; // 0-7
+
 enum class kScenario
 {
     BASELINE,
@@ -41,7 +43,7 @@ struct ProducersConfig
 {
     uint16_t count;
     uint32_t messages_per_sec;
-    std::vector<float> message_type_distribution;
+    std::array<float, MESSAGE_TYPE_COUNT> message_type_distribution;
 };
 
 struct Stage1Rule
@@ -60,7 +62,7 @@ struct Stage2Rule
 struct ProcessorsConfig
 {
     uint16_t count;
-    std::vector<std::chrono::nanoseconds> message_type_processing_time_ns;
+    std::array<std::chrono::nanoseconds, MESSAGE_TYPE_COUNT> message_type_processing_time_ns;
 };
 
 struct Config
@@ -84,5 +86,7 @@ void FromJson(const json &j, ProcessorsConfig &processors);
 void FromJson(const json &j, StrategyConfig &strategies);
 void FromJson(const json &j, std::vector<Stage1Rule> &rules);
 void FromJson(const json &j, std::vector<Stage2Rule> &rules);
+
+
 
 #endif

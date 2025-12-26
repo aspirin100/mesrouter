@@ -1,8 +1,9 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#include "message.h"
 #include "../utils/mpsc.h"
+#include "../config.h"
+#include "message.h"
 #include <chrono>
 #include <cstdint>
 #include <atomic>
@@ -17,7 +18,7 @@ private:
     std::chrono::nanoseconds processing_time_;
     InputQ &input_;
 
-    std::array<uint64_t, 8> expected_seq_;
+    std::array<uint64_t, MESSAGE_TYPE_COUNT> expected_seq_;
     uint16_t violations_ = 0;
 
 public:

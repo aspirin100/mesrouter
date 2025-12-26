@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <vector>
 
-Stage1Router::Stage1Router(const Config &conf, InputQ &in, std::vector<OutputQ *> out)
+Stage1Router::Stage1Router(const Config &conf, InputQ &in, std::vector<OutputQ> &out)
     : input_(in), output_(out)
 {
     msg_type_output_.fill(INVALID_OUTPUT);
@@ -38,9 +38,9 @@ void Stage1Router::RouteOne()
     size_t idx = SelectOutput(msg);
 
     assert(idx != INVALID_OUTPUT);
-    assert(output_[idx] != nullptr);
+    assert(idx < output_.size());
 
-    output_[idx]->Push(std::move(msg));
+    output_[idx].Push(std::move(msg));
 }
 
 void Stage1Router::Run()

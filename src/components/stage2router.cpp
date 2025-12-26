@@ -1,7 +1,7 @@
 #include "components/router.h"
 #include <utility>
 
-Stage2Router::Stage2Router(const Config &conf, InputQ &in, std::vector<OutputQ *> out)
+Stage2Router::Stage2Router(const Config &conf, InputQ &in, std::vector<OutputQ> &out)
     : input_(in), output_(out),
       msg_type_output_(conf.stage_2_rules.size(), INVALID_OUTPUT),
       msg_type_ordering_requirement_(conf.stage_2_rules.size(), false)
@@ -29,11 +29,11 @@ void Stage2Router::RouteOne()
     size_t idx = SelectOutput(msg.msg);
 
     assert(idx != INVALID_OUTPUT);
-    assert(output_[idx] != nullptr);
+    assert(idx < output_.size());
 
     msg.ordering_required = CheckOrderingRequired(msg.msg);
 
-    output_[idx]->Push(std::move(msg));
+    output_[idx].Push(std::move(msg));
 }
 
 size_t Stage2Router::SelectOutput(const Message &msg)
