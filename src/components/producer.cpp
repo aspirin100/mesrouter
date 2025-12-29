@@ -2,7 +2,7 @@
 #include "components/message.h"
 #include <utility>
 
-Producer::Producer(const Config &conf, uint64_t producer_id, OutputQ &out)
+Producer::Producer(const Config &conf, uint64_t producer_id, OutputQ &out) // TODO: config validation(sum of msg distribution must be 1)
     : id_(producer_id),
       output_(out),
       limiter_(conf.producers.messages_per_sec)

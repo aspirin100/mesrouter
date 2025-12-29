@@ -1,6 +1,6 @@
 {
     "scenario": "baseline",
-    "duration_secs": 10,
+    "duration_secs": 2,
     "producers": {
         "count": 4,
         "messages_per_sec": 1000000,

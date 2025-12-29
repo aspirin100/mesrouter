@@ -3,6 +3,7 @@
 #include <memory>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 Application::Application(const Config &conf)
     : stage1_q_(),
@@ -22,9 +23,7 @@ Application::Application(const Config &conf)
                 continue;
 
             producers_.emplace_back(
-                std::make_unique<Producer>(i,
-                                           static_cast<kMessageType>(j),
-                                           stage1_q_, conf.producers.messages_per_sec * conf.producers.message_type_distribution[j]));
+                std::make_unique<Producer>(conf, i, stage1_q_));
         }
 
     processors_.reserve(conf.processors.count);
@@ -43,12 +42,37 @@ Application::Application(const Config &conf)
 
 void Application::StartProcess()
 {
-    auto timer = std::thread(StartTimer);
+    std::thread timer([this]()
+                      { StartExecTimer(); });
 
-    
+    std::vector<std::thread> threads;
+    threads.reserve(producers_.size());
+
+    for (auto &producer : producers_)
+        threads.emplace_back([p = producer.get()]()
+                             { p->Run(); });
+
+    threads.emplace_back([this]()
+                         { stage1_r_.Run(); });
+
+    for (auto &processor : processors_)
+        threads.emplace_back([p = processor.get()]()
+                             { p->Run(); });
+
+    threads.emplace_back([this]()
+                         { stage2_r_.Run(); });
+
+    for (auto &strategy : strategies_)
+        threads.emplace_back([s = strategy.get()]()
+                             { s->Run(); });
+
+    timer.join();
+
+    for (auto &thread : threads)
+        thread.join();
 }
 
-void Application::StartTimer()
+void Application::StartExecTimer()
 {
     auto start = std::chrono::steady_clock::now();
     auto end = start + duration_sec_;
@@ -57,4 +81,36 @@ void Application::StartTimer()
     {
         // _mm_pause();
     }
+
+    StopComponents();
+}
+
+void Application::StopComponents()
+{
+    for (auto &producer : producers_)
+        producer->Stop();
+
+    stage1_r_.Stop();
+
+    for (auto &processor : processors_)
+        processor->Stop();
+
+    stage2_r_.Stop();
+
+    for (auto &strategy : strategies_)
+        strategy->Stop();
+}
+
+void Application::ShowStats()
+{
+    MsgValidatingStats stats;
+
+    for (auto &strategy : strategies_)
+    {
+        stats.all_passed += strategy->GetStats().all_passed;
+        stats.violations += strategy->GetStats().violations;
+    }
+
+    std::cout << "all passsed: " << stats.all_passed << std::endl;
+    std::cout << "ordering violations: " << stats.violations << std::endl;
 }

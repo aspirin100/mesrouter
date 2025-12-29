@@ -8,6 +8,12 @@
 #include <cstdint>
 #include <atomic>
 
+struct MsgValidatingStats
+{
+    uint64_t violations = 0;
+    uint64_t all_passed = 0;
+};
+
 class Strategy
 {
     using InputQ = rigtorp::SPSCQueue<MessageEnvelope>;
@@ -19,13 +25,16 @@ private:
     std::chrono::nanoseconds processing_time_;
 
     std::array<uint64_t, MESSAGE_TYPE_COUNT> expected_seq_;
-    uint16_t violations_ = 0;
+
+    MsgValidatingStats stats;
 
 public:
     Strategy(InputQ &in, const std::chrono::nanoseconds &processing_time);
 
     void Run();
     void Stop();
+
+    MsgValidatingStats GetStats();
 
     virtual ~Strategy() = default;
 

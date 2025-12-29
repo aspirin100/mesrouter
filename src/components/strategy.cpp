@@ -21,6 +21,9 @@ void Strategy::ValidateOne()
         // _mm_pause();
         m_ptr = input_.front();
     }
+
+    ++stats.all_passed;
+
     MessageEnvelope msg(std::move(*m_ptr));
 
     input_.pop();
@@ -33,7 +36,7 @@ void Strategy::ValidateOne()
             expected_seq_[idx] = msg.msg.seq_number;
 
         else if (msg.msg.seq_number != expected_seq_[idx])
-            ++violations_;
+            ++stats.violations;
 
         expected_seq_[idx] = msg.msg.seq_number + 1;
     }
@@ -42,6 +45,11 @@ void Strategy::ValidateOne()
     {
         // _mm_pause();
     }
+}
+
+MsgValidatingStats Strategy::GetStats()
+{
+    return stats;
 }
 
 void Strategy::Run()
