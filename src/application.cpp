@@ -1,6 +1,8 @@
 #include "config.h"
 #include "application.h"
 #include <memory>
+#include <thread>
+#include <chrono>
 
 Application::Application(const Config &conf)
     : stage1_q_(),
@@ -41,4 +43,18 @@ Application::Application(const Config &conf)
 
 void Application::StartProcess()
 {
+    auto timer = std::thread(StartTimer);
+
+    
+}
+
+void Application::StartTimer()
+{
+    auto start = std::chrono::steady_clock::now();
+    auto end = start + duration_sec_;
+
+    while (std::chrono::steady_clock::now() < end)
+    {
+        // _mm_pause();
+    }
 }

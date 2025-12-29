@@ -2,32 +2,52 @@
 #include "components/message.h"
 #include <utility>
 
-Producer::Producer(uint64_t producer_id, kMessageType msg_type, OutputQ &out, uint32_t msg_per_sec)
-    : id_(producer_id), producing_msg_type_(msg_type), output_(out), limiter_(msg_per_sec)
+Producer::Producer(const Config &conf, uint64_t producer_id, OutputQ &out)
+    : id_(producer_id),
+      output_(out),
+      limiter_(conf.producers.messages_per_sec)
 {
+    float acc = 0;
+    for (uint8_t i = 0; i < conf.producers.message_type_distribution.size(); ++i)
+    {
+        acc += conf.producers.message_type_distribution[i];
+        chooser.cdf[i] = acc;
+    }
 }
 
 void Producer::ProduceMessage()
 {
-
     Message msg;
 
     msg.producer_id = id_;
     msg.seq_number = seq_;
-    msg.type = producing_msg_type_;
+    msg.type = SelectMsgType();
 
     ++seq_;
 
     output_.push(std::move(msg));
 }
 
+kMessageType Producer::SelectMsgType()
+{
+    float x = chooser.range(chooser.rnd);
+
+    for (size_t i = 0; i < MESSAGE_TYPE_COUNT; ++i)
+    {
+        if (x < chooser.cdf[i])
+            return static_cast<kMessageType>(i);
+    }
+
+    return static_cast<kMessageType>(MESSAGE_TYPE_COUNT - 1);
+}
+
 void Producer::Run()
 {
     running_.store(true, std::memory_order_relaxed);
 
-    while(running_.load(std::memory_order_relaxed))
+    while (running_.load(std::memory_order_relaxed))
     {
-        if(limiter_.can_produce())
+        if (limiter_.can_produce())
             ProduceMessage();
         else
             limiter_.wait_for_next_batch();

@@ -34,6 +34,9 @@ public:
     Application(const Config &conf);
 
     void StartProcess();
+
+private:
+    void StartTimer();
 };
 
 #endif
