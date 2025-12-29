@@ -16,8 +16,12 @@ void Processor::TransformOne()
 
     while (!m_ptr)
     {
-        // _mm_pause();
+        if (!running_.load(std::memory_order_relaxed))
+            return;
+
         m_ptr = input_.front();
+        
+        // _mm_pause();
     }
 
     MessageEnvelope res;
@@ -27,7 +31,14 @@ void Processor::TransformOne()
 
     input_.pop();
 
-    output_.push(std::move(res));
+    while(!output_.try_emplace(res))
+    {
+        if(!running_.load(std::memory_order_relaxed))
+            return;
+
+        // _mm_pause();
+    }
+    
 
     while (std::chrono::steady_clock::now() < end)
     {

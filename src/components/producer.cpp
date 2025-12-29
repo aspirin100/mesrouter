@@ -25,7 +25,9 @@ void Producer::ProduceMessage()
 
     ++seq_;
 
-    output_.push(std::move(msg));
+    while(!output_.try_emplace(msg))
+        if(!running_.load(std::memory_order_relaxed))
+            return;
 }
 
 kMessageType Producer::SelectMsgType()
