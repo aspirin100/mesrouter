@@ -9,7 +9,7 @@
 
 class Processor final
 {
-    using InputQ = spsc_queue<Message>;
+    using InputQ = rigtorp::SPSCQueue<Message>;
     using OutputQ = mpsc_queue<MessageEnvelope>;
 
 private:

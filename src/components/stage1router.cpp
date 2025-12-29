@@ -40,7 +40,7 @@ void Stage1Router::RouteOne()
     assert(idx != INVALID_OUTPUT);
     assert(idx < output_.size());
 
-    output_[idx].Push(std::move(msg));
+    output_[idx].push(std::move(msg));
 }
 
 void Stage1Router::Run()

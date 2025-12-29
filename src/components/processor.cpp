@@ -12,14 +12,20 @@ void Processor::TransformOne()
     auto start = std::chrono::steady_clock::now();
     auto end = start + processing_time_;
 
-    Message msg;
+    auto m_ptr = input_.front();
 
-    input_.Pop(msg);
+    while (!m_ptr)
+    {
+        // _mm_pause();
+        m_ptr = input_.front();
+    }
 
     MessageEnvelope res;
 
-    res.msg = std::move(msg);
     res.processing_info.processor_id = id_;
+    res.msg = std::move(*m_ptr);
+
+    input_.pop();
 
     output_.Push(std::move(res));
 
@@ -33,7 +39,7 @@ void Processor::Run()
 {
     running_.store(true, std::memory_order_relaxed);
 
-    while(running_.load(std::memory_order_relaxed))
+    while (running_.load(std::memory_order_relaxed))
         TransformOne();
 }
 

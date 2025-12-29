@@ -15,7 +15,7 @@ constexpr size_t INVALID_OUTPUT = std::numeric_limits<size_t>::max();
 class Stage1Router
 {
     using InputQ = mpsc_queue<Message>;
-    using OutputQ = spsc_queue<Message>;
+    using OutputQ = rigtorp::SPSCQueue<Message>;
 
 private:
     std::atomic<bool> running_;

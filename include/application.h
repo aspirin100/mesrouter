@@ -18,7 +18,7 @@ class Application
 private:
     mpsc_queue<Message> stage1_q_;
     mpsc_queue<MessageEnvelope> stage2_q_;
-    std::vector<spsc_queue<Message>> processors_q_;
+    std::vector<rigtorp::SPSCQueue<Message>> processors_q_;
     std::vector<mpsc_queue<MessageEnvelope>> strategies_q_;
 
     Stage1Router stage1_r_;
