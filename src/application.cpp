@@ -55,16 +55,16 @@ void Application::StartProcess()
     threads.emplace_back([this]()
                          { stage1_r_.Run(); });
 
-    for (auto &processor : processors_)
-        threads.emplace_back([p = processor.get()]()
-                             { p->Run(); });
+    // for (auto &processor : processors_)
+    //     threads.emplace_back([p = processor.get()]()
+    //                          { p->Run(); });
 
-    threads.emplace_back([this]()
-                         { stage2_r_.Run(); });
+    // threads.emplace_back([this]()
+    //                      { stage2_r_.Run(); });
 
-    for (auto &strategy : strategies_)
-        threads.emplace_back([s = strategy.get()]()
-                             { s->Run(); });
+    // for (auto &strategy : strategies_)
+    //     threads.emplace_back([s = strategy.get()]()
+    //                          { s->Run(); });
 
     timer.join();
 
@@ -74,13 +74,8 @@ void Application::StartProcess()
 
 void Application::StartExecTimer()
 {
-    auto start = std::chrono::steady_clock::now();
-    auto end = start + duration_sec_;
-
-    while (std::chrono::steady_clock::now() < end)
-    {
-        // _mm_pause();
-    }
+    auto end = std::chrono::steady_clock::now() + duration_sec_;
+    std::this_thread::sleep_until(end);
 
     StopComponents();
 }
