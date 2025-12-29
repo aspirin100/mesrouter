@@ -14,9 +14,16 @@ void Strategy::ValidateOne()
     auto start = std::chrono::steady_clock::now();
     auto end = start + processing_time_;
 
-    MessageEnvelope msg;
+    auto m_ptr = input_.front();
 
-    input_.Pop(msg);
+    while (!m_ptr)
+    {
+        // _mm_pause();
+        m_ptr = input_.front();
+    }
+    MessageEnvelope msg(std::move(*m_ptr));
+
+    input_.pop();
 
     if (msg.ordering_required)
     {
@@ -41,7 +48,7 @@ void Strategy::Run()
 {
     running_.store(true, std::memory_order_relaxed);
 
-    while(running_.load(std::memory_order_relaxed))
+    while (running_.load(std::memory_order_relaxed))
         ValidateOne();
 }
 

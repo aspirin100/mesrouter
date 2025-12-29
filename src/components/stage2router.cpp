@@ -24,7 +24,7 @@ void Stage2Router::RouteOne()
 {
     MessageEnvelope msg;
 
-    input_.Pop(msg);
+    input_.pop(msg);
 
     size_t idx = SelectOutput(msg.msg);
 
@@ -33,7 +33,7 @@ void Stage2Router::RouteOne()
 
     msg.ordering_required = CheckOrderingRequired(msg.msg);
 
-    output_[idx].Push(std::move(msg));
+    output_[idx].push(std::move(msg));
 }
 
 size_t Stage2Router::SelectOutput(const Message &msg)

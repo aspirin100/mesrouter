@@ -2,14 +2,14 @@
 #define PRODUCER_H
 
 #include "message.h"
-#include "../utils/mpsc.h"
+#include "../utils/mpmc.h"
 #include "../utils/limiter.h"
 #include <cstdint>
 #include <atomic>
 
 class Producer
 {
-    using OutputQ = mpsc_queue<Message>;
+    using OutputQ = rigtorp::mpmc::Queue<Message>;
 
 private:
     std::atomic<bool> running_ = false;

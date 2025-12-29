@@ -27,7 +27,7 @@ void Processor::TransformOne()
 
     input_.pop();
 
-    output_.Push(std::move(res));
+    output_.push(std::move(res));
 
     while (std::chrono::steady_clock::now() < end)
     {

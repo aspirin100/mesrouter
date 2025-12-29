@@ -7,7 +7,7 @@
 #include "components/strategy.h"
 #include "components/message.h"
 #include "components/router.h"
-#include "utils/mpsc.h"
+#include "utils/mpmc.h"
 #include "utils/spsc.h"
 #include <vector>
 #include <chrono>
@@ -16,10 +16,10 @@
 class Application
 {
 private:
-    mpsc_queue<Message> stage1_q_;
-    mpsc_queue<MessageEnvelope> stage2_q_;
+    rigtorp::mpmc::Queue<Message> stage1_q_;
+    rigtorp::mpmc::Queue<MessageEnvelope> stage2_q_;
     std::vector<rigtorp::SPSCQueue<Message>> processors_q_;
-    std::vector<mpsc_queue<MessageEnvelope>> strategies_q_;
+    std::vector<rigtorp::SPSCQueue<MessageEnvelope>> strategies_q_;
 
     Stage1Router stage1_r_;
     Stage2Router stage2_r_;

@@ -1,7 +1,7 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
-#include "../utils/mpsc.h"
+#include "../utils/mpmc.h"
 #include "../utils/spsc.h"
 #include "../config.h"
 #include "message.h"
@@ -14,7 +14,7 @@ constexpr size_t INVALID_OUTPUT = std::numeric_limits<size_t>::max();
 
 class Stage1Router
 {
-    using InputQ = mpsc_queue<Message>;
+    using InputQ = rigtorp::mpmc::Queue<Message>;
     using OutputQ = rigtorp::SPSCQueue<Message>;
 
 private:
@@ -37,8 +37,8 @@ private:
 
 class Stage2Router
 {
-    using InputQ = mpsc_queue<MessageEnvelope>;
-    using OutputQ = mpsc_queue<MessageEnvelope>;
+    using InputQ = rigtorp::mpmc::Queue<MessageEnvelope>;
+    using OutputQ = rigtorp::SPSCQueue<MessageEnvelope>;
 
 private:
     std::atomic<bool> running_;

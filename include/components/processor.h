@@ -3,14 +3,14 @@
 
 #include "message.h"
 #include "../utils/spsc.h"
-#include "../utils/mpsc.h"
+#include "../utils/mpmc.h"
 #include <chrono>
 #include <atomic>
 
 class Processor final
 {
     using InputQ = rigtorp::SPSCQueue<Message>;
-    using OutputQ = mpsc_queue<MessageEnvelope>;
+    using OutputQ = rigtorp::mpmc::Queue<MessageEnvelope>;
 
 private:
     uint16_t id_;

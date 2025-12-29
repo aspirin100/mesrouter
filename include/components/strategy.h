@@ -1,7 +1,7 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#include "../utils/mpsc.h"
+#include "../utils/spsc.h"
 #include "../config.h"
 #include "message.h"
 #include <chrono>
@@ -10,7 +10,7 @@
 
 class Strategy
 {
-    using InputQ = mpsc_queue<MessageEnvelope>;
+    using InputQ = rigtorp::SPSCQueue<MessageEnvelope>;
 
 private:
     std::atomic<bool> running_;

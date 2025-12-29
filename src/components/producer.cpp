@@ -18,7 +18,7 @@ void Producer::ProduceMessage()
 
     ++seq_;
 
-    output_.Push(std::move(msg));
+    output_.push(std::move(msg));
 }
 
 void Producer::Run()

@@ -33,7 +33,7 @@ void Stage1Router::RouteOne()
 {
     Message msg;
 
-    input_.Pop(msg);
+    input_.pop(msg);
     
     size_t idx = SelectOutput(msg);
 
