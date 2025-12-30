@@ -25,7 +25,7 @@ private:
     std::atomic<bool> running_ = false;
 
     uint64_t id_;
-    uint64_t seq_ = 0;
+    std::array<uint64_t, MESSAGE_TYPE_COUNT> msg_type_seq_;
 
     OutputQ &output_;
 
