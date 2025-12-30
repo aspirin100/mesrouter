@@ -18,8 +18,11 @@ void Strategy::ValidateOne()
 
     while (!m_ptr)
     {
-        // _mm_pause();
+        if(!running_.load(std::memory_order_relaxed))
+            return;
+            
         m_ptr = input_.front();
+        // _mm_pause();
     }
 
     ++stats.all_passed;

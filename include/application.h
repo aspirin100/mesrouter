@@ -28,7 +28,7 @@ private:
     std::vector<std::unique_ptr<Processor>> processors_;
     std::vector<std::unique_ptr<Strategy>> strategies_;
 
-    std::chrono::duration<float> duration_sec_;
+    std::chrono::seconds duration_sec_;
 
 public:
     Application(const Config &conf);

@@ -32,7 +32,7 @@ std::optional<Config> ParseConfig()
     Config config;
 
     FromJson(data, config.scenario);
-    config.duration_sec = std::chrono::duration<float>(data.at("duration_secs"));
+    config.duration_sec = std::chrono::seconds(data.at("duration_secs"));
     FromJson(data, config.producers);
     FromJson(data, config.processors);
     FromJson(data, config.strategies);

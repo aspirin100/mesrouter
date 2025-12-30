@@ -34,8 +34,12 @@ void Stage1Router::RouteOne()
     Message msg;
 
     while (!input_.try_pop(msg))
+    {
         if (!running_.load(std::memory_order_relaxed))
             return;
+        // else
+        //_mm_pause();
+    }
 
     size_t idx = SelectOutput(msg);
 
@@ -43,8 +47,12 @@ void Stage1Router::RouteOne()
     assert(idx < output_.size());
 
     while (!output_[idx].try_emplace(msg))
+    {
         if (!running_.load(std::memory_order_relaxed))
             return;
+        //else
+        //_mm_pause();
+    }
 }
 
 void Stage1Router::Run()

@@ -25,9 +25,13 @@ void Stage2Router::RouteOne()
     MessageEnvelope msg;
 
     while (!input_.try_pop(msg))
+    {
         if (!running_.load(std::memory_order_relaxed))
             return;
-
+        //else
+        // _mm_pause();
+    }
+        
     size_t idx = SelectOutput(msg.msg);
 
     assert(idx != INVALID_OUTPUT);
@@ -36,8 +40,12 @@ void Stage2Router::RouteOne()
     msg.ordering_required = CheckOrderingRequired(msg.msg);
 
     while (!output_[idx].try_emplace(msg))
+    {
         if (!running_.load(std::memory_order_relaxed))
             return;
+        //  else
+        //  _mm_pause();
+    }
 }
 
 size_t Stage2Router::SelectOutput(const Message &msg)

@@ -26,8 +26,12 @@ void Producer::ProduceMessage()
     ++seq_;
 
     while(!output_.try_emplace(msg))
+    {
         if(!running_.load(std::memory_order_relaxed))
             return;
+        //else
+            // _mm_pause();
+    }
 }
 
 kMessageType Producer::SelectMsgType()
@@ -49,10 +53,10 @@ void Producer::Run()
 
     while (running_.load(std::memory_order_relaxed))
     {
-        if (limiter_.can_produce())
+       if (limiter_.can_produce())
             ProduceMessage();
-        else
-            limiter_.wait_for_next_batch();
+       else
+          limiter_.wait_for_next_batch();
     }
 }
 

@@ -42,7 +42,7 @@ struct StrategyConfig
 struct ProducersConfig
 {
     uint16_t count;
-    uint32_t messages_per_sec;
+    uint64_t messages_per_sec;
     std::array<float, MESSAGE_TYPE_COUNT> message_type_distribution;
 };
 
@@ -68,7 +68,7 @@ struct ProcessorsConfig
 struct Config
 {
     kScenario scenario;
-    std::chrono::duration<float> duration_sec;
+    std::chrono::seconds duration_sec;
     ProducersConfig producers;
     ProcessorsConfig processors;
     StrategyConfig strategies;

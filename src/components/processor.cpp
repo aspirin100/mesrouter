@@ -35,7 +35,7 @@ void Processor::TransformOne()
     {
         if(!running_.load(std::memory_order_relaxed))
             return;
-
+        // else
         // _mm_pause();
     }
     
