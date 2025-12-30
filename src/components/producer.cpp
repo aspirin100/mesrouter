@@ -1,6 +1,7 @@
 #include "components/producer.h"
 #include "components/message.h"
 #include <utility>
+#include <emmintrin.h>
 
 Producer::Producer(const Config &conf, uint64_t producer_id, OutputQ &out) // TODO: config validation(sum of msg distribution must be 1)
     : id_(producer_id),
@@ -29,8 +30,8 @@ void Producer::ProduceMessage()
     {
         if(!running_.load(std::memory_order_relaxed))
             return;
-        //else
-            // _mm_pause();
+        else
+            _mm_pause();
     }
 }
 

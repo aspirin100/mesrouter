@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <chrono>
+#include <emmintrin.h>
 
 class BatchRateLimiter
 {
@@ -52,7 +53,7 @@ public:
         auto deadline = batch_start_ + std::chrono::nanoseconds(interval_ns_);
         while (std::chrono::steady_clock::now() < deadline)
         {
-            // _mm_pause();
+            _mm_pause();
         }
         batch_start_ = std::chrono::steady_clock::now();
         produced_in_batch_ = 0;

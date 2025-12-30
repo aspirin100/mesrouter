@@ -5,7 +5,6 @@ proj_name=mesrouter
 preset=default
 
 cd $script_dir/..
-cmake --preset=$preset
+cmake -DCMAKE_MAKE_PROGRAM=/usr/bin/make --preset=$preset
 cd build
 make
-mv $proj_name ..

@@ -3,6 +3,7 @@
 #include <limits>
 #include <stdexcept>
 #include <vector>
+#include <emmintrin.h>
 
 Stage1Router::Stage1Router(const Config &conf, InputQ &in, std::vector<OutputQ> &out)
     : input_(in), output_(out)
@@ -37,8 +38,8 @@ void Stage1Router::RouteOne()
     {
         if (!running_.load(std::memory_order_relaxed))
             return;
-        // else
-        //_mm_pause();
+        else
+            _mm_pause();
     }
 
     size_t idx = SelectOutput(msg);
@@ -50,8 +51,8 @@ void Stage1Router::RouteOne()
     {
         if (!running_.load(std::memory_order_relaxed))
             return;
-        //else
-        //_mm_pause();
+        else
+            _mm_pause();
     }
 }
 

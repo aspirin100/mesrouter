@@ -1,6 +1,7 @@
 #include "components/processor.h"
 #include "components/message.h"
 #include <chrono>
+#include <emmintrin.h>
 
 Processor::Processor(const uint16_t id, InputQ &in, OutputQ &out, const std::chrono::nanoseconds &processing_time)
     : id_(id), input_(in), output_(out), processing_time_(processing_time)
@@ -20,8 +21,8 @@ void Processor::TransformOne()
             return;
 
         m_ptr = input_.front();
-        
-        // _mm_pause();
+
+        _mm_pause();
     }
 
     MessageEnvelope res;
@@ -31,18 +32,17 @@ void Processor::TransformOne()
 
     input_.pop();
 
-    while(!output_.try_emplace(res))
+    while (!output_.try_emplace(res))
     {
-        if(!running_.load(std::memory_order_relaxed))
+        if (!running_.load(std::memory_order_relaxed))
             return;
-        // else
-        // _mm_pause();
+        else
+            _mm_pause();
     }
-    
 
     while (std::chrono::steady_clock::now() < end)
     {
-        // _mm_pause();
+        _mm_pause();
     }
 }
 

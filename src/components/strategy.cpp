@@ -1,5 +1,6 @@
 #include "components/strategy.h"
 #include <limits>
+#include <emmintrin.h>
 
 constexpr uint64_t INVALID_SEQ = std::numeric_limits<uint64_t>::max();
 
@@ -20,9 +21,9 @@ void Strategy::ValidateOne()
     {
         if(!running_.load(std::memory_order_relaxed))
             return;
-            
+
         m_ptr = input_.front();
-        // _mm_pause();
+        _mm_pause();
     }
 
     ++stats.all_passed;
@@ -46,7 +47,7 @@ void Strategy::ValidateOne()
 
     while (std::chrono::steady_clock::now() < end)
     {
-        // _mm_pause();
+        _mm_pause();
     }
 }
 

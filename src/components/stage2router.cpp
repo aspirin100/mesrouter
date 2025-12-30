@@ -1,5 +1,6 @@
 #include "components/router.h"
 #include <utility>
+#include <emmintrin.h>
 
 Stage2Router::Stage2Router(const Config &conf, InputQ &in, std::vector<OutputQ> &out)
     : input_(in), output_(out),
@@ -28,10 +29,10 @@ void Stage2Router::RouteOne()
     {
         if (!running_.load(std::memory_order_relaxed))
             return;
-        //else
-        // _mm_pause();
+        else
+            _mm_pause();
     }
-        
+
     size_t idx = SelectOutput(msg.msg);
 
     assert(idx != INVALID_OUTPUT);
@@ -43,8 +44,8 @@ void Stage2Router::RouteOne()
     {
         if (!running_.load(std::memory_order_relaxed))
             return;
-        //  else
-        //  _mm_pause();
+        else
+            _mm_pause();
     }
 }
 
