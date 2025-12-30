@@ -25,12 +25,18 @@ struct ProcessingInfo
     std::chrono::steady_clock::time_point ts;
 };
 
+struct OrderingInfo
+{
+    bool required = false;
+    uint16_t producer_id;
+    uint64_t seq_number;
+};
+
 struct Message
 {
     kMessageType type = kMessageType::TYPE0;
 
-    uint16_t producer_id;
-    uint16_t seq_number = 0;
+    OrderingInfo ordering_info;
 
     std::chrono::steady_clock::time_point ts = std::chrono::steady_clock::now();
 
@@ -41,7 +47,6 @@ struct MessageEnvelope
 {
     Message msg;
     ProcessingInfo processing_info;
-    bool ordering_required = false;
 };
 
 #endif

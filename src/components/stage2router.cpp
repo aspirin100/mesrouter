@@ -38,7 +38,7 @@ void Stage2Router::RouteOne()
     assert(idx != INVALID_OUTPUT);
     assert(idx < output_.size());
 
-    msg.ordering_required = CheckOrderingRequired(msg.msg);
+    msg.msg.ordering_info.required = CheckOrderingRequired(msg.msg);
 
     while (!output_[idx].try_emplace(msg))
     {

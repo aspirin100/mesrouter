@@ -2,12 +2,13 @@
 #include <limits>
 #include <emmintrin.h>
 
-constexpr uint64_t INVALID_SEQ = std::numeric_limits<uint64_t>::max();
-
-Strategy::Strategy(InputQ &in, const std::chrono::nanoseconds &processing_time)
+Strategy::Strategy(uint16_t producers_count, InputQ &in, const std::chrono::nanoseconds &processing_time)
     : input_(in), processing_time_(processing_time)
 {
-    expected_seq_.fill(INVALID_SEQ);
+    msg_expected_seq_.resize(producers_count);
+
+    for (auto &seq_arr : msg_expected_seq_)
+        seq_arr.fill(0);
 }
 
 void Strategy::ValidateOne()
@@ -19,7 +20,7 @@ void Strategy::ValidateOne()
 
     while (!m_ptr)
     {
-        if(!running_.load(std::memory_order_relaxed))
+        if (!running_.load(std::memory_order_relaxed))
             return;
 
         m_ptr = input_.front();
@@ -32,17 +33,18 @@ void Strategy::ValidateOne()
 
     input_.pop();
 
-    if (msg.ordering_required)
+    if (msg.msg.ordering_info.required)
     {
-        size_t idx = static_cast<size_t>(msg.msg.type);
+        size_t producer_idx = msg.msg.ordering_info.producer_id;
+        size_t msg_idx = static_cast<size_t>(msg.msg.type);
 
-        if (expected_seq_[idx] == INVALID_SEQ)
-            expected_seq_[idx] = msg.msg.seq_number;
-
-        else if (msg.msg.seq_number != expected_seq_[idx])
+        if (msg.msg.ordering_info.seq_number != msg_expected_seq_[producer_idx][msg_idx])
+        {
             ++stats.violations;
-
-        expected_seq_[idx] = msg.msg.seq_number + 1;
+            msg_expected_seq_[producer_idx][msg_idx] = msg.msg.ordering_info.seq_number; 
+        }
+        
+        ++msg_expected_seq_[producer_idx][msg_idx];
     }
 
     while (std::chrono::steady_clock::now() < end)

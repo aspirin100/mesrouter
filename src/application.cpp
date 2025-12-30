@@ -37,7 +37,7 @@ Application::Application(const Config &conf)
 
     for (size_t i = 0; i < conf.strategies.count; ++i)
         strategies_.emplace_back(
-            std::make_unique<Strategy>(strategies_q_[i], conf.strategies.strategy_processing_time_ns[i]));
+            std::make_unique<Strategy>(conf.producers.count, strategies_q_[i], conf.strategies.strategy_processing_time_ns[i]));
 }
 
 void Application::StartProcess()

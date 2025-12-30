@@ -1,6 +1,7 @@
 #include "components/producer.h"
 #include "components/message.h"
 #include <utility>
+#include <limits>
 #include <emmintrin.h>
 
 Producer::Producer(const Config &conf, uint64_t producer_id, OutputQ &out) // TODO: config validation(sum of msg distribution must be 1)
@@ -14,17 +15,17 @@ Producer::Producer(const Config &conf, uint64_t producer_id, OutputQ &out) // TO
         acc += conf.producers.message_type_distribution[i];
         chooser.cdf[i] = acc;
     }
+
+    msg_type_seq_.fill(0);
 }
 
 void Producer::ProduceMessage()
 {
     Message msg;
 
-    msg.producer_id = id_;
-    msg.seq_number = seq_;
+    msg.ordering_info.producer_id = id_;
     msg.type = SelectMsgType();
-
-    ++seq_;
+    msg.ordering_info.seq_number = msg_type_seq_[static_cast<uint8_t>(msg.type)]++;
 
     while(!output_.try_emplace(msg))
     {
