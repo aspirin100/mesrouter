@@ -25,11 +25,6 @@ Stage1Router::Stage1Router(const Config &conf, InputQ &in, std::vector<OutputQ> 
     }
 }
 
-size_t Stage1Router::SelectOutput(const Message &msg) const noexcept
-{
-    return msg_type_output_[static_cast<size_t>(msg.type)];
-}
-
 void Stage1Router::RouteOne()
 {
     Message msg;
@@ -55,6 +50,12 @@ void Stage1Router::RouteOne()
             _mm_pause();
     }
 }
+
+size_t Stage1Router::SelectOutput(const Message &msg) const noexcept
+{
+    return msg_type_output_[static_cast<size_t>(msg.type)];
+}
+
 
 void Stage1Router::Run()
 {

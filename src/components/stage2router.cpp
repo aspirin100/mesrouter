@@ -33,7 +33,7 @@ void Stage2Router::RouteOne()
             _mm_pause();
     }
 
-    size_t idx = SelectOutput(msg.msg);
+    uint16_t idx = SelectOutput(msg.msg);
 
     assert(idx != INVALID_OUTPUT);
     assert(idx < output_.size());
@@ -51,12 +51,12 @@ void Stage2Router::RouteOne()
 
 size_t Stage2Router::SelectOutput(const Message &msg)
 {
-    return msg_type_output_[static_cast<size_t>(msg.type)];
+    return msg_type_output_[static_cast<uint8_t>(msg.type)];
 }
 
 bool Stage2Router::CheckOrderingRequired(const Message &msg)
 {
-    return msg_type_ordering_requirement_[static_cast<size_t>(msg.type)];
+    return msg_type_ordering_requirement_[static_cast<uint8_t>(msg.type)];
 }
 
 void Stage2Router::Run()

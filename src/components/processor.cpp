@@ -10,25 +10,25 @@ Processor::Processor(const uint16_t id, InputQ &in, OutputQ &out, const std::chr
 
 void Processor::TransformOne()
 {
-    auto start = std::chrono::steady_clock::now();
-    auto end = start + processing_time_;
+    auto processing_end = std::chrono::steady_clock::now() + processing_time_;
 
-    auto m_ptr = input_.front();
+    Message *msg_ptr;
 
-    while (!m_ptr)
+    while (true)
     {
         if (!running_.load(std::memory_order_relaxed))
             return;
 
-        m_ptr = input_.front();
-
-        _mm_pause();
+        if (msg_ptr = input_.front(); msg_ptr)
+            break;
+        else
+            _mm_pause();
     }
 
     MessageEnvelope res;
 
     res.processing_info.processor_id = id_;
-    res.msg = std::move(*m_ptr);
+    res.msg = std::move(*msg_ptr);
 
     input_.pop();
 
@@ -40,10 +40,9 @@ void Processor::TransformOne()
             _mm_pause();
     }
 
-    while (std::chrono::steady_clock::now() < end)
-    {
+    while (std::chrono::steady_clock::now() < processing_end)
         _mm_pause();
-    }
+    
 }
 
 void Processor::Run()
