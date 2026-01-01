@@ -10,7 +10,7 @@
 #include <vector>
 #include <atomic>
 
-constexpr size_t INVALID_OUTPUT = std::numeric_limits<size_t>::max();
+constexpr uint16_t INVALID_OUTPUT = std::numeric_limits<uint16_t>::max();
 
 class Stage1Router
 {
@@ -21,7 +21,7 @@ private:
     std::atomic<bool> running_;
 
     InputQ &input_;
-    std::array<size_t, MESSAGE_TYPE_COUNT> msg_type_output_;
+    std::array<uint16_t, MESSAGE_TYPE_COUNT> msg_type_output_;
     std::vector<OutputQ> &output_;
 
 public:
@@ -46,7 +46,7 @@ private:
     InputQ &input_;
     std::vector<OutputQ> &output_;
 
-    std::vector<size_t> msg_type_output_;
+    std::vector<uint16_t> msg_type_output_;
     std::vector<bool> msg_type_ordering_requirement_;
 
 public:
