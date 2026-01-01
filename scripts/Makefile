@@ -6,7 +6,7 @@ buildimg:
 	docker build -t $(PROJ_NAME)_img ../
 
 run: 
-	docker run --name=$(PROJ_NAME) $(PROJ_NAME)_img
+	docker run --rm --name=$(PROJ_NAME) $(PROJ_NAME)_img
 
 clean:
 	docker rm -f $(PROJ_NAME) 2>/dev/null
