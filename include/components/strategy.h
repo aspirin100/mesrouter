@@ -24,12 +24,12 @@ private:
     InputQ &input_;
     std::chrono::nanoseconds processing_time_;
 
-    std::vector<std::array<uint64_t, MESSAGE_TYPE_COUNT>> msg_expected_seq_;
+    uint64_t expected_seq_;
 
     MsgValidatingStats stats;
 
 public:
-    Strategy(uint16_t producers_count, InputQ &in, const std::chrono::nanoseconds &processing_time);
+    Strategy(InputQ &in, const std::chrono::nanoseconds &processing_time);
 
     void Run();
     void Stop();
