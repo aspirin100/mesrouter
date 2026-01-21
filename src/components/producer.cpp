@@ -25,7 +25,7 @@ void Producer::ProduceMessage()
 
     msg.ordering_info.producer_id = id_;
     msg.type = SelectMsgType();
-    msg.ordering_info.seq_number = msg_type_seq_[static_cast<uint8_t>(msg.type)]++;
+    msg.ordering_info.producer_seq = msg_type_seq_[static_cast<uint8_t>(msg.type)]++;
 
     while(!output_.try_emplace(msg))
     {

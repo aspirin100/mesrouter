@@ -4,13 +4,9 @@
 
 constexpr uint64_t INVALID_SEQ = std::numeric_limits<uint64_t>::max();
 
-Strategy::Strategy(uint16_t producers_count, InputQ &in, const std::chrono::nanoseconds &processing_time)
-    : input_(in), processing_time_(processing_time)
+Strategy::Strategy(InputQ &in, const std::chrono::nanoseconds &processing_time)
+    : input_(in), processing_time_(processing_time), expected_seq_(0)
 {
-    msg_expected_seq_.resize(producers_count);
-
-    for (auto &seq_arr : msg_expected_seq_)
-        seq_arr.fill(INVALID_SEQ);
 }
 
 void Strategy::ValidateOne()
@@ -33,21 +29,14 @@ void Strategy::ValidateOne()
 
     input_.pop();
 
-    if (msg.msg.ordering_info.required)
+    auto &ordering_info = msg.msg.ordering_info;
+
+    if (ordering_info.required)
     {
-        size_t producer_idx = msg.msg.ordering_info.producer_id;
-        size_t msg_idx = static_cast<size_t>(msg.msg.type);
+        if (ordering_info.delivery_seq != expected_seq_)
+            ++stats.violations;
 
-        auto &actual = msg.msg.ordering_info.seq_number;
-        auto &expected = msg_expected_seq_[producer_idx][msg_idx];
-
-        if(actual != expected)
-        {
-            if(expected != INVALID_SEQ)
-                ++stats.violations;
-        }
-
-        expected = actual + 1;
+        expected_seq_ = ordering_info.delivery_seq + 1;
     }
 
     while (std::chrono::steady_clock::now() < processing_end)

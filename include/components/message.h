@@ -29,7 +29,8 @@ struct OrderingInfo
 {
     bool required = false;
     uint16_t producer_id;
-    uint64_t seq_number;
+    uint64_t producer_seq;
+    uint64_t delivery_seq = 0;
 };
 
 struct Message

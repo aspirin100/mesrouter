@@ -25,7 +25,7 @@ private:
     std::vector<OutputQ> &output_;
 
 public:
-    Stage1Router(const Config &conf, InputQ &in, std::vector<OutputQ>& out);
+    Stage1Router(const Config &conf, InputQ &in, std::vector<OutputQ> &out);
 
     void Run();
     void Stop();
@@ -41,13 +41,23 @@ class Stage2Router
     using OutputQ = rigtorp::SPSCQueue<MessageEnvelope>;
 
 private:
+
+    struct Sequencer
+    {
+        uint64_t next_seq = 0;
+        std::vector<std::array<uint64_t, MESSAGE_TYPE_COUNT>> expected_seq;
+        std::vector<std::array<MessageEnvelope, MESSAGE_TYPE_COUNT>> buffer;
+        std::vector<bool> msg_type_ordering_requirement;
+    };
+
+private:
     std::atomic<bool> running_;
 
     InputQ &input_;
     std::vector<OutputQ> &output_;
 
     std::vector<uint16_t> msg_type_output_;
-    std::vector<bool> msg_type_ordering_requirement_;
+    Sequencer sequencer_;
 
 public:
     Stage2Router(const Config &conf, InputQ &in, std::vector<OutputQ> &out);
@@ -57,6 +67,7 @@ public:
 
 private:
     void RouteOne();
+    void SendOne(MessageEnvelope &msg);
     size_t SelectOutput(const Message &msg);
     bool CheckOrderingRequired(const Message &msg);
 };
